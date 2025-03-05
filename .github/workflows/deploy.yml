@@ -62,3 +62,13 @@ jobs:
         run: |
           kubectl get pods
           kubectl get svc
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f deployment.yml --validate=false
+          kubectl apply -f service.yml --validate=false
+
+      - name: Force Restart Deployment (Pull Latest Image)
+        run: |
+          kubectl rollout restart deployment flask-app
+          kubectl get pods
