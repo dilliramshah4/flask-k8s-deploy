@@ -3,7 +3,7 @@ name: Deploy Flask App to Kubernetes
 on:
   push:
     branches:
-      - main  # Change this to your main branch
+      - main  # Adjust if using another branch
 
 jobs:
   deploy:
@@ -30,9 +30,8 @@ jobs:
       - name: Set up Kubectl
         uses: azure/setup-kubectl@v3
         with:
-          version: v1.32.2  # Change this to your K8s version
+          version: v1.32.2  # Adjust if needed
 
-      # ✅ Fix: Ensure AWS Credentials Are Loaded
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -40,18 +39,24 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      # ✅ Step 2: Update Kubeconfig
       - name: Update Kubeconfig
         run: |
           aws eks update-kubeconfig --region us-east-1 --name my-eks-cluster
-          kubectl config current-context  # Debugging step
-          kubectl cluster-info            # Debugging step
+          kubectl config current-context
+          kubectl cluster-info
 
-      # ✅ Step 3: Deploy to Kubernetes
       - name: Deploy to Kubernetes
         run: |
           kubectl apply -f deployment.yml --validate=false
           kubectl apply -f service.yml --validate=false
+          
+      - name: Force Update Deployment to Pull Latest Image
+        run: |
+          kubectl set image deployment/flask-app flask-app=dilliramshah4/flask-app:latest --record
+
+      - name: Wait for Pods to be Ready
+        run: |
+          kubectl rollout status deployment/flask-app
 
       - name: Verify Deployment
         run: |
