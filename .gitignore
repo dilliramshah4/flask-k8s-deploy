@@ -1,0 +1,74 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Distribution / Packaging
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+*.pyc
+
+# Logs & Debug Files
+logs/
+*.log
+*.out
+*.err
+nohup.out
+
+# Flask Specific
+instance/
+.webassets-cache
+
+# Pytest
+.cache
+
+# MyPy
+.mypy_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IDE / Editor Specific
+.vscode/
+.idea/
+*.iml
+
+# Kubernetes Configs & Secrets
+.kube/
+kubeconfig.yaml
+config
+secrets.yaml
+*.crt
+*.key
+*.pem
+*.kubeconfig
+
+# Helm Charts
+helm-chart/
+charts/
+releases/
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Terraform (if used)
+.terraform/
+terraform.tfstate*
+terraform.tfvars
+*.tfstate.backup
