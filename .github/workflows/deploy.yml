@@ -1,20 +1,59 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: flask-app
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: flask-app
-  template:
-    metadata:
-      labels:
-        app: flask-app
-    spec:
-      containers:
-        - name: flask-app
-          image: dilliramshah4/flask-app:latest
-          imagePullPolicy: Always  # ✅ Forces Kubernetes to pull the latest image
-          ports:
-            - containerPort: 5000
+name: Deploy Flask App to Kubernetes
+
+on:
+  push:
+    branches:
+      - main  # Change this to your main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t dilliramshah4/flask-app:latest .
+          docker push dilliramshah4/flask-app:latest
+
+      - name: Set up Kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: v1.32.2  # Change this to your K8s version
+
+      # ✅ Fix: Ensure AWS Credentials Are Loaded
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      # ✅ Step 2: Update Kubeconfig
+      - name: Update Kubeconfig
+        run: |
+          aws eks update-kubeconfig --region us-east-1 --name my-eks-cluster
+          kubectl config current-context  # Debugging step
+          kubectl cluster-info            # Debugging step
+
+      # ✅ Step 3: Deploy to Kubernetes
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f deployment.yml --validate=false
+          kubectl apply -f service.yml --validate=false
+
+      - name: Verify Deployment
+        run: |
+          kubectl get pods
+          kubectl get svc
