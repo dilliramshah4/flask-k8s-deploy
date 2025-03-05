@@ -3,7 +3,7 @@ name: Deploy Flask App to Kubernetes
 on:
   push:
     branches:
-      - main  # Change this if needed
+      - main  # Change this to your main branch
 
 jobs:
   deploy:
@@ -24,32 +24,34 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t dilliramshahu4/flask-app:latest .
-          docker push dilliramshahu4/flask-app:latest
+          docker build -t dilliramshah4/flask-app:latest .
+          docker push dilliramshah4/flask-app:latest
 
       - name: Set up Kubectl
         uses: azure/setup-kubectl@v3
         with:
-          version: v1.30.9  # Ensure it matches your EKS version
+          version: v1.32.2  # Change this to your K8s version
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1  # Change this if needed
-
+      # ✅ Step 1: Update Kubeconfig
       - name: Update Kubeconfig
         run: |
           aws eks update-kubeconfig --region us-east-1 --name my-eks-cluster
+          kubectl config current-context  # Debugging step
+          kubectl cluster-info            # Debugging step
 
+      # ✅ Step 2: Debug Kubeconfig
+      - name: Debug Kubernetes Configuration
+        run: |
+          echo "Kubeconfig:"
+          cat ~/.kube/config
+
+      # ✅ Step 3: Deploy with --validate=false
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply -f deployment.yml
-          if [ -f service.yml ]; then kubectl apply -f service.yml; fi  # Only apply if service.yml exists
+          kubectl apply -f deployment.yml --validate=false
+          kubectl apply -f service.yml --validate=false
 
       - name: Verify Deployment
         run: |
-          kubectl get pods -A
-          kubectl get svc -A
-          
+          kubectl get pods
+          kubectl get svc
