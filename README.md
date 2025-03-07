@@ -4,7 +4,10 @@
 
 Flask Notes App: End-to-End Deployment on AWS EKS with Automated CI/CD
 
-![Architecture Diagram](../Pictures/Screenshots/Screenshot%20from%202025-03-08%2001-03-55.png)
+Architecture Diagram
+
+![Screenshot from 2025-03-08 01-03-55](https://github.com/user-attachments/assets/c8044f31-d0ad-44b2-a087-2c99a9b9844e)
+
 
 ## Prerequisites
 
