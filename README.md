@@ -4,6 +4,8 @@
 
 Flask Notes App: End-to-End Deployment on AWS EKS with Automated CI/CD
 
+![Architecture Diagram](../Pictures/Screenshots/Screenshot%20from%202025-03-08%2001-03-55.png)
+
 ## Prerequisites
 
 - AWS Account with IAM configured
