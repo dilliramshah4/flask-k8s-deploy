@@ -1,165 +1,90 @@
-# flask-k8s-deploy
-This repository contains a Flask application deployed on Kubernetes using Docker, GitHub Actions (CI/CD), and Kubernetes (EKS)
+# Flask Notes App
 
-## Development Setup
+## Overview
 
-### Prerequisites
-- Python 3.8+
-- Docker
-- Kubernetes CLI (kubectl)
-- AWS CLI (for EKS)
-- Git
+Flask Notes App: End-to-End Deployment on AWS EKS with Automated CI/CD
 
-### Installation
+## Prerequisites
 
-1. Clone the repository:
-    ```sh
-    git clone https://github.com/yourusername/flask-k8s-deploy.git
-    cd flask-k8s-deploy
-    ```
+- AWS Account with IAM configured
+- AWS CLI installed and configured
+- kubectl installed
+- eksctl installed
+- Docker installed
+- GitHub repository for CI/CD integration
 
-2. Create a virtual environment and activate it:
-    ```sh
-    python3 -m venv venv
-    source venv/bin/activate
-    ```
+## Deployment Steps
 
-3. Install the dependencies:
-    ```sh
-    pip install -r requirements.txt
-    ```
+### 1. Clone the Repository
+```sh
+git clone https://github.com/dilliramshah4/flask-k8s-deploy
+cd flask-k8s-deploy
+```
 
-### Running the Application
+### 2. Set Up AWS CLI & EKS
 
-1. Run the Flask application locally:
-    ```sh
-    flask run
-    ```
-
-2. Build and run the Docker container:
-    ```sh
-    docker build -t flask-app .
-    docker run -p 5000:5000 flask-app
-    ```
-
-3. Deploy to Kubernetes:
-    ```sh
-    kubectl apply -f k8s-deployment.yaml
-    kubectl apply -f k8s-service.yaml
-    ```
-
-### Running Tests
-
-1. Run the tests using pytest:
-    ```sh
-    pytest
-    ```
-
-## AWS EKS Setup and Deployment
-
-### Step 1: Login to AWS
+Configure AWS CLI:
 ```sh
 aws configure
 ```
-Enter your AWS credentials when prompted.
 
-### Step 2: Create an EKS Cluster
+Create an EKS Cluster:
 ```sh
-eksctl create cluster --name flask-cluster --region us-east-1 --nodegroup-name flask-nodes --node-type t2.micro --nodes 2
+eksctl create cluster --name flask-cluster --region us-east-1
 ```
-Wait for the cluster to be created.
 
-### Step 3: Configure kubectl
+### 3. Build & Push Docker Image
 ```sh
-aws eks update-kubeconfig --name flask-cluster --region us-east-1
-```
-Verify the cluster connection:
-```sh
-kubectl get nodes
+docker build -t <your-dockerhub-username>/flask-notes-app .
+docker push <your-dockerhub-username>/flask-notes-app
 ```
 
-### Step 4: Clone the Flask App Repository
-```sh
-git clone https://github.com/your-repo/flask-app.git
-cd flask-app
-```
+### 4. Deploy to Kubernetes
 
-### Step 5: Build and Push Docker Image
-```sh
-docker build -t flask-app .
-docker tag flask-app:latest <your-dockerhub-username>/flask-app:latest
-docker push <your-dockerhub-username>/flask-app:latest
-```
-
-### Step 6: Deploy the Flask App to Kubernetes
-
-Create Deployment:
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: flask-app
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: flask-app
-  template:
-    metadata:
-      labels:
-        app: flask-app
-    spec:
-      containers:
-        - name: flask-app
-          image: <your-dockerhub-username>/flask-app:latest
-          ports:
-            - containerPort: 5000
-```
-Apply the deployment:
+Apply Kubernetes manifests:
 ```sh
 kubectl apply -f deployment.yml
+kubectl apply -f service.yml
 ```
 
-Create Service:
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: flask-service
-spec:
-  selector:
-    app: flask-app
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 5000
-  type: LoadBalancer
-```
-Apply the service:
-```sh
-kubectl apply -f service.yaml
-```
-
-### Step 7: Verify Deployment
+Check if pods are running:
 ```sh
 kubectl get pods
-kubectl get services
 ```
-Get the external IP of the service:
+
+Get the LoadBalancer URL:
 ```sh
 kubectl get svc flask-service
 ```
-Visit the external IP in your browser to access the Flask app.
 
-### Step 8: Monitor Logs
+### 5. Set Up CI/CD Pipeline
+
+Use GitHub Actions or Jenkins for automation.
+
+Configure `.github/workflows/deploy.yml` for GitHub Actions.
+
+### 6. Automate Deployment
+
+Push code to GitHub:
 ```sh
-kubectl logs -l app=flask-app
+git add .
+git commit -m "Deploy Flask Notes App"
+git push origin main
 ```
 
-### Step 9: Clean Up Resources
-To delete the cluster and free up resources:
+CI/CD pipeline will automatically:
+- Build Docker image
+- Push to Docker Hub
+- Deploy to Kubernetes
+
+### 7. Verify Deployment
 ```sh
-eksctl delete cluster --name flask-cluster --region us-east-1
+kubectl get pods
+kubectl get svc
 ```
 
+Access the app via the LoadBalancer URL.
 
+## Conclusion
+
+This setup ensures a smooth and automated deployment of the Flask Notes App using AWS EKS and CI/CD best practices. 🚀
