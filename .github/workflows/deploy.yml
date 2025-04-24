@@ -41,7 +41,8 @@ jobs:
 
       - name: Update Kubeconfig
         run: |
-          aws eks update-kubeconfig --eu-north-1 --name my-eks-cluster
+          aws eks update-kubeconfig --region eu-north-1 --name my-eks-cluster
+
           kubectl config current-context
           kubectl cluster-info
 
